@@ -2,7 +2,7 @@ import 'package:dio/dio.dart';
 import '../../models/route_model.dart';
 
 class RouteService {
-  final Dio _dio = Dio(BaseOptions(baseUrl: 'http://10.0.2.2:8000/api'));
+  final Dio _dio = Dio(BaseOptions(baseUrl: 'https://unisonmap-fastapi.onrender.com/api'));
 
   Future<RouteModel?> calcularRuta(int desdeId, int haciaId) async {
     try {

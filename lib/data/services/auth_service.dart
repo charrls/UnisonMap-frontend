@@ -3,7 +3,8 @@ import 'package:dio/dio.dart';
 import '../../models/user_model.dart';
 
 class AuthService {
-  final Dio _dio = Dio(BaseOptions(baseUrl: 'http://10.0.2.2:8000/api'));
+  
+  final Dio _dio = Dio(BaseOptions(baseUrl: 'https://unisonmap-fastapi.onrender.com/api'));
 
   Future<String?> login(String email, String password) async {
     try {

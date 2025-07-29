@@ -4,10 +4,11 @@ import '../../models/ubicacion_model.dart';
 
 class UbicacionService {
   final Dio _dio = Dio(BaseOptions(
-    baseUrl: 'http://10.0.2.2:8000/api',
-    connectTimeout: const Duration(seconds: 10),
-    receiveTimeout: const Duration(seconds: 15),
+    baseUrl: 'https://unisonmap-fastapi.onrender.com/api',
+    connectTimeout: const Duration(seconds: 30),
+    receiveTimeout: const Duration(seconds: 30),
   ));
+
 
   Future<List<UbicacionModel>> fetchUbicaciones() async {
     try {

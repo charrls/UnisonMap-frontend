@@ -3,9 +3,9 @@ import '../../models/ruta_ors_model.dart';
 
 class ORSService {
   final Dio _dio = Dio(BaseOptions(
-    baseUrl: 'http://10.0.2.2:8000/api', 
-    connectTimeout: const Duration(seconds: 10),
-    receiveTimeout: const Duration(seconds: 15),
+    baseUrl: 'https://unisonmap-fastapi.onrender.com/api', 
+    connectTimeout: const Duration(seconds: 30), 
+    receiveTimeout: const Duration(seconds: 30),
   ));
 
   /// Obtiene una ruta real usando OpenRouteService
