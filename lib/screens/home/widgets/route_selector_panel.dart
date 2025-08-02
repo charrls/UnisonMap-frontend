@@ -1,4 +1,3 @@
-// En lib/screens/home/widgets/route_selector_panel.dart
 import 'package:flutter/material.dart';
 import '../../../models/ubicacion_model.dart';
 import 'transport_selector.dart'; 
@@ -44,7 +43,6 @@ class _RouteSelectorPanelState extends State<RouteSelectorPanel> {
       }
     });
     
-    // Si ya hay una ubicación seleccionada, mostrarla en el campo
     if (widget.fromLocation != null) {
       _fromController.text = widget.fromLocation!.nombre;
     }
@@ -59,7 +57,6 @@ class _RouteSelectorPanelState extends State<RouteSelectorPanel> {
 
   void _updateSuggestions(String query) {
     if (query.isEmpty) {
-      // Mostrar ubicaciones populares cuando no hay búsqueda
       _filteredSuggestions = widget.ubicaciones.take(5).toList();
     } else {
       final queryLower = query.toLowerCase().trim();
@@ -99,7 +96,6 @@ class _RouteSelectorPanelState extends State<RouteSelectorPanel> {
     widget.onFromChanged(ubicacion);
   }
 
-// En route_selector_panel.dart - AGREGAR estas funciones de conversión al final de _RouteSelectorPanelState:
 
 TransportType _stringToTransportType(String transport) {
   switch (transport) {
@@ -144,151 +140,151 @@ String _transportTypeToString(TransportType transportType) {
             ),
             child: Column(
               children: [
-                // Campo "Desde" - Buscador directo
-                TextField(
-                  controller: _fromController,
-                  focusNode: _fromFocusNode,
-                  decoration: InputDecoration(
-                    labelText: 'Desde',
-                    hintText: 'Buscar ubicación de origen...',
-                    prefixIcon: const Icon(Icons.my_location, color: Colors.green),
-                    suffixIcon: _fromController.text.isNotEmpty
-                        ? IconButton(
-                            icon: const Icon(Icons.clear),
-                            onPressed: () {
-                              _fromController.clear();
-                              widget.onFromChanged(null);
-                              _updateSuggestions('');
-                            },
-                          )
-                        : null,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
+
+              ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: Column(
+                  children: [
+                    TextField(
+                      controller: _fromController,
+                      focusNode: _fromFocusNode,
+                      decoration: InputDecoration(
+                        labelText: 'Desde',
+                        hintText: 'Buscar ubicación de origen...',
+                        prefixIcon: const Icon(Icons.my_location, color: Colors.green),
+                        suffixIcon: _fromController.text.isNotEmpty
+                            ? IconButton(
+                                icon: const Icon(Icons.clear),
+                                onPressed: () {
+                                  _fromController.clear();
+                                  widget.onFromChanged(null);
+                                  _updateSuggestions('');
+
+                                },
+                              )
+                            : null,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8), 
+                        ),
+                        filled: true,
+                        fillColor: Colors.white,
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+                      ),
+                      onChanged: (value) {
+                        _updateSuggestions(value);
+                        if (value.isEmpty) {
+                          widget.onFromChanged(null);
+                        }
+                      },
+                      onSubmitted: (value) {
+                        if (_filteredSuggestions.isNotEmpty) {
+                          _selectFromLocation(_filteredSuggestions.first);
+                        }
+                      },
                     ),
+
+                    if (_showSuggestions)
+                      Material(
+                        elevation: 2,
+                        color: Colors.white,        
+                        surfaceTintColor: Colors.transparent,
+                        child: ConstrainedBox(
+                          constraints: const BoxConstraints(maxHeight: 300),
+                          child: ListView(
+                            shrinkWrap: true,
+                            padding: EdgeInsets.zero,
+                            children: [
+                              if (_fromController.text.isEmpty) ...[
+                                ListTile(
+                                  leading: const Icon(Icons.gps_fixed, color: Colors.blue),
+                                  title: const Text('Tu ubicación actual'),
+                                  onTap: () {
+                                    _fromController.text = 'Tu ubicación actual';
+                                    _fromFocusNode.unfocus();
+                                    setState(() => _showSuggestions = false);
+                                    widget.onFromChanged(null);
+                                  },
+                                ),
+                                ListTile(
+                                  leading: const Icon(Icons.pin_drop, color: Colors.blue),
+                                  title: const Text('Seleccionar en el mapa'),
+                                  onTap: () {
+                                    _fromFocusNode.unfocus();
+                                    setState(() => _showSuggestions = false);
+                                    widget.onFromChanged(null);
+                                  },
+                                ),
+                                const Divider(height: 1),
+                                const Padding(
+                                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                  child: Text(
+                                    'Ubicaciones sugeridas',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w500,
+                                      color: Colors.grey,
+                                    ),
+                                  ),
+                                ),
+                              ],
+
+                              if (_filteredSuggestions.isEmpty && _fromController.text.isNotEmpty)
+                                const Padding(
+                                  padding: EdgeInsets.all(16),
+                                  child: Text(
+                                    'No se encontraron ubicaciones',
+                                    style: TextStyle(color: Colors.grey),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                )
+                              else
+                                ..._filteredSuggestions.map(
+                                  (ubicacion) => ListTile(
+                                    leading: _getIconForTipo(ubicacion.tipo),
+                                    title: Text(ubicacion.nombre),
+                                    subtitle: ubicacion.tipo.isNotEmpty ? Text(ubicacion.tipo) : null,
+                                    onTap: () => _selectFromLocation(ubicacion),
+                                  ),
+                                ),
+                            ],
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+
+              const SizedBox(height: 16),
+
+              TextField(
+                enabled: false,
+                decoration: InputDecoration(
+                  labelText: 'Hasta',
+                  hintText: widget.toLocation.nombre,
+                  prefixIcon: const Icon(Icons.place, color: Colors.red),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
                   ),
-                  onChanged: (value) {
-                    _updateSuggestions(value);
-                    if (value.isEmpty) {
-                      widget.onFromChanged(null);
-                    }
-                  },
-                  onSubmitted: (value) {
-                    if (_filteredSuggestions.isNotEmpty) {
-                      _selectFromLocation(_filteredSuggestions.first);
-                    }
-                  },
+                  fillColor: Colors.grey[100],
+                  filled: true,
                 ),
-                
-                const SizedBox(height: 16),
-                
-                // Campo "Hasta" - Solo lectura
-                TextField(
-                  enabled: false,
-                  decoration: InputDecoration(
-                    labelText: 'Hasta',
-                    hintText: widget.toLocation.nombre,
-                    prefixIcon: const Icon(Icons.place, color: Colors.red),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    fillColor: Colors.grey[100],
-                    filled: true,
-                  ),
-                ),
-                
-                const SizedBox(height: 16),
-                
-                // REEMPLAZAR el DropdownButton por TransportSelector:
-                TransportSelector(
-                  selectedTransport: _stringToTransportType(widget.selectedTransport),
-                  onTransportSelected: (transportType) {
-                    widget.onTransportChanged(_transportTypeToString(transportType));
-                  },
-                ),
+              ),
+
+              const SizedBox(height: 16),
+
+              TransportSelector(
+                selectedTransport: _stringToTransportType(widget.selectedTransport),
+                onTransportSelected: (transportType) {
+                  widget.onTransportChanged(_transportTypeToString(transportType));
+                },
+              ),
+
 
               ],
             ),
           ),
         ),
         
-        // Panel de sugerencias (permanece igual)
-        if (_showSuggestions)
-          Material(
-            elevation: 2,
-            borderRadius: const BorderRadius.vertical(bottom: Radius.circular(8)),
-            child: Container(
-              constraints: const BoxConstraints(maxHeight: 300),
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.vertical(bottom: Radius.circular(8)),
-              ),
-              child: ListView(
-                shrinkWrap: true,
-                children: [
-                  // Opciones especiales cuando no hay texto
-                  if (_fromController.text.isEmpty) ...[
-                    ListTile(
-                      leading: const Icon(Icons.gps_fixed, color: Colors.blue),
-                      title: const Text('Tu ubicación actual'),
-                      onTap: () {
-                        _fromController.text = 'Tu ubicación actual';
-                        _fromFocusNode.unfocus();
-                        setState(() {
-                          _showSuggestions = false;
-                        });
-                        widget.onFromChanged(null);
-                      },
-                    ),
-                    ListTile(
-                      leading: const Icon(Icons.pin_drop, color: Colors.blue),
-                      title: const Text('Seleccionar en el mapa'),
-                      onTap: () {
-                        _fromFocusNode.unfocus();
-                        setState(() {
-                          _showSuggestions = false;
-                        });
-                        widget.onFromChanged(null);
-                      },
-                    ),
-                    const Divider(),
-                    const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                      child: Text(
-                        'Ubicaciones sugeridas',
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
-                          color: Colors.grey,
-                        ),
-                      ),
-                    ),
-                  ],
-                  
-                  // Lista de sugerencias
-                  if (_filteredSuggestions.isEmpty && _fromController.text.isNotEmpty)
-                    const Padding(
-                      padding: EdgeInsets.all(16),
-                      child: Text(
-                        'No se encontraron ubicaciones',
-                        style: TextStyle(color: Colors.grey),
-                        textAlign: TextAlign.center,
-                      ),
-                    )
-                  else
-                    ...(_filteredSuggestions.map(
-                      (ubicacion) => ListTile(
-                        leading: _getIconForTipo(ubicacion.tipo),
-                        title: Text(ubicacion.nombre),
-                        subtitle: ubicacion.tipo.isNotEmpty 
-                            ? Text(ubicacion.tipo)
-                            : null,
-                        onTap: () => _selectFromLocation(ubicacion),
-                      ),
-                    )),
-                ],
-              ),
-            ),
-          ),
       ],
     );
   }

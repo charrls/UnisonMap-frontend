@@ -1,4 +1,3 @@
-/// auth_provider.dart
 import 'package:flutter/material.dart';
 import '../models/user_model.dart';
 import '../data/services/auth_service.dart';
@@ -16,7 +15,7 @@ class AuthProvider with ChangeNotifier {
 
 
   Future<void> loginAsGuest() async {
-  _token = null; // No hay token en modo invitado
+  _token = null; 
   _user = UserModel(
     nombres: 'Invitado',
     apellidos: '',

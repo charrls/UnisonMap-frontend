@@ -91,7 +91,7 @@ class LocationBottomSheet extends StatelessWidget {
                   ),
                   const SizedBox(width: 8),
                   ElevatedButton.icon(
-                    onPressed: onShowDirections, // Usar el parámetro aquí
+                    onPressed: onShowDirections,
                     icon: const Icon(Icons.directions_walk),
                     label: const Text("Indicaciones"),
                   ),

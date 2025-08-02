@@ -30,7 +30,6 @@ class RutaORS {
     );
   }
 
-  // Getters de conveniencia
   double get distanciaMetros => distanciaM.toDouble();
   double get tiempoMinutos => (duracionS / 60.0);
   String get distanciaFormateada => distanciaM < 1000 
@@ -61,6 +60,5 @@ class UbicacionInfo {
     );
   }
 
-  // Convertir a LatLng para usar en el mapa
   LatLng get coordenadas => LatLng(lat, lng);
 }

@@ -1,4 +1,3 @@
-/// ubicacion_service.dart
 import 'package:dio/dio.dart';
 import '../../models/ubicacion_model.dart';
 

@@ -52,7 +52,6 @@ class MapView extends StatelessWidget {
           userAgentPackageName: 'com.example.unisonmap',
         ),
         
-        // Capa de ruta ORS (prioritaria)
         if (rutaORS != null)
           PolylineLayer(
             polylines: [
@@ -66,7 +65,6 @@ class MapView extends StatelessWidget {
             ],
           ),
         
-        // Capa de ruta calculada (fallback)
         if (rutaORS == null && currentRoute != null)
           PolylineLayer(
             polylines: [
@@ -79,9 +77,7 @@ class MapView extends StatelessWidget {
               ),
             ],
           ),
-        // Marcadores para el modo de planificación de rutas
         if (navigationState == NavigationState.routePlanning) ...[
-          // Marcador de origen (círculo azul)
           if (routeFrom != null)
             MarkerLayer(
               markers: [
@@ -110,7 +106,6 @@ class MapView extends StatelessWidget {
                 ),
               ],
             ),
-          // Marcador de destino (pin rojo)
           if (routeTo != null)
             MarkerLayer(
               markers: [
@@ -128,7 +123,6 @@ class MapView extends StatelessWidget {
             ),
         ],
         
-        // Marcador para ubicación seleccionada en mapa (si está en modo selección)
         if (selectionMode && selectedLocation != null)
           MarkerLayer(
             markers: [
@@ -145,7 +139,6 @@ class MapView extends StatelessWidget {
             ],
           ),
         
-        // Marcador para ubicación seleccionada normal (solo en modo normal)
         if (navigationState == NavigationState.normal && ubicacionSeleccionada != null)
           MarkerLayer(
             markers: [
@@ -168,11 +161,9 @@ class MapView extends StatelessWidget {
         if (showRoute)
           PolylineLayer(
             polylines: [
-              // Aquí iría la polilínea de la ruta calculada
             ],
           ),
         
-        // Overlay para modo selección
         if (selectionMode)
           const Align(
             alignment: Alignment.center,

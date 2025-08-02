@@ -8,10 +8,6 @@ class ORSService {
     receiveTimeout: const Duration(seconds: 30),
   ));
 
-  /// Obtiene una ruta real usando OpenRouteService
-  /// [desdeId] - ID de la ubicación de origen
-  /// [haciaId] - ID de la ubicación de destino
-  /// Retorna [RutaORS] con la ruta calculada o null si hay error
   Future<RutaORS?> obtenerRutaReal(int desdeId, int haciaId) async {
     try {
       print('Calculando ruta: $desdeId → $haciaId');
@@ -46,7 +42,6 @@ class ORSService {
     }
   }
 
-  /// Verifica si el servicio está disponible
   Future<bool> verificarConexion() async {
     try {
       final response = await _dio.get('/health');

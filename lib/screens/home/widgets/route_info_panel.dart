@@ -39,7 +39,6 @@ class RouteInfoPanel extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // Indicador de tipo de ruta
           if (isORSRoute)
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),

@@ -48,7 +48,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
           padding: const EdgeInsets.all(16),
           child: Column(
             children: [
-              // Tarjeta de información del usuario
               Card(
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 elevation: 2,
@@ -78,7 +77,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
               const SizedBox(height: 16),
 
-              // Ficha académica
               Card(
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 elevation: 2,
@@ -117,7 +115,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
               const SizedBox(height: 24),
 
-              // Sección de configuración
               _SectionTitle('Configuración'),
               _SettingsButton(icon: Icons.person_outline, text: 'Actualizar datos personales', onTap: () {}),
               _SettingsButton(icon: Icons.lock_outline, text: 'Cambiar contraseña', onTap: () {}),
@@ -126,7 +123,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
               const SizedBox(height: 24),
 
-              // Sección de sesión
               _SectionTitle('Sesión'),
               _SettingsButton(
                 icon: Icons.logout,

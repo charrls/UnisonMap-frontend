@@ -1,5 +1,3 @@
-/// ubicacion_model.dart
-
 class UbicacionModel {
   final int id;
   final String nombre;

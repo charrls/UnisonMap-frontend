@@ -45,7 +45,6 @@ class _HomeScreenState extends State<HomeScreen> {
           ? const Center(child: CircularProgressIndicator())
           : Stack(
               children: [
-                // Mapa base
                 MapView(
                   controller: _controller.mapController,
                   ubicacionSeleccionada: _controller.ubicacionSeleccionada,
@@ -59,7 +58,6 @@ class _HomeScreenState extends State<HomeScreen> {
                   currentRoute: _controller.currentRoute,
                   rutaORS: _controller.rutaORS,
                 ),
-                // Componentes según el estado
                 ..._buildComponentsByState(),
               ],
             ),
@@ -69,13 +67,11 @@ class _HomeScreenState extends State<HomeScreen> {
   List<Widget> _buildComponentsByState() {
     final components = <Widget>[];
 
-    // Modo selección de mapa
     if (_controller.mapSelectionMode) {
       components.add(
         MapSelectionOverlay(
           onCancel: () {
             _controller.setMapSelectionMode(false);
-            // Solo mostrar el panel de origen si estamos en modo de planificación de rutas
             if (_controller.navigationState == NavigationState.routePlanning) {
               _controller.toggleOriginSearchPanel(true);
             }
@@ -127,9 +123,6 @@ class _HomeScreenState extends State<HomeScreen> {
       ]);
     }
 
-// En lib/screens/home/home_screen.dart
-// ELIMINAR todo el bloque de OriginSearchPanel:
-
 if (_controller.navigationState == NavigationState.routePlanning) {
   components.addAll([
     Positioned(
@@ -141,7 +134,7 @@ if (_controller.navigationState == NavigationState.routePlanning) {
         toLocation: _controller.routeTo ?? _controller.ubicacionSeleccionada!,
         ubicaciones: _controller.ubicaciones,
         selectedTransport: _controller.selectedTransport,
-        onFromChanged: _controller.handleFromLocationSelection, // Nuevo método
+        onFromChanged: _controller.handleFromLocationSelection,
         onTransportChanged: _controller.setTransportType,
       ),
     ),
@@ -163,7 +156,6 @@ if (_controller.navigationState == NavigationState.routePlanning) {
         isRouteCalculated: _controller.isRouteCalculated,
       ),
     ),
-    // YA NO NECESITAS el OriginSearchPanel
   ]);
 }
 

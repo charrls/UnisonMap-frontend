@@ -23,7 +23,7 @@ class SuggestionPanel extends StatelessWidget {
       borderRadius: BorderRadius.circular(8),
       child: Container(
         color: Colors.white,
-        constraints: const BoxConstraints(maxHeight: 300), // Aumentar altura máxima
+        constraints: const BoxConstraints(maxHeight: 300),
         child: searchController.text.isEmpty
             ? _buildHistorialSection()
             : _buildSugerenciasSection(),

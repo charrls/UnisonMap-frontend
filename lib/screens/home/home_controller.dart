@@ -105,7 +105,6 @@ String get selectedTransport {
     try {
       print('Intentando obtener ruta ORS desde \${routeFrom!.nombre} hasta \${routeTo!.nombre}');
       
-      // 1. Intentar obtener ruta real de ORS
       final rutaORS = await _orsService.obtenerRutaReal(
         routeFrom!.id,
         routeTo!.id,
@@ -114,32 +113,28 @@ String get selectedTransport {
       if (rutaORS != null) {
         print('Ruta ORS obtenida exitosamente');
         _rutaORS = rutaORS;
-        _currentRoute = null; // Limpiar ruta legacy
+        _currentRoute = null; 
         
-        // Actualizar métricas desde ORS
         _distance = rutaORS.distanciaFormateada;
         _timeEstimate = rutaORS.tiempoFormateado;
         
-        // Ajustar vista del mapa a la ruta
         if (rutaORS.ruta.isNotEmpty) {
           _adjustMapBounds(rutaORS.ruta);
         }
         
         print('Distancia: ${rutaORS.distanciaFormateada}, Tiempo: ${rutaORS.tiempoFormateado}');
         
-        _isRouteCalculated = true; // Marcar que la ruta fue calculada
+        _isRouteCalculated = true; 
         
       } else {
         print('Ruta ORS no disponible, intentando ruta legacy...');
         
-        // 2. Fallback a ruta legacy si ORS falla
         await _calcularRutaLegacy();
       }
       
     } catch (e) {
       print('Error obteniendo ruta ORS: \$e');
       
-      // Fallback a ruta legacy en caso de error
       await _calcularRutaLegacy();
     } finally {
       _isCalculatingRoute = false;
@@ -151,16 +146,11 @@ String get selectedTransport {
     try {
       print('Obteniendo ruta legacy...');
       
-      // Simular llamada a ruta legacy (el servicio puede no estar implementado)
-      // final routeModel = await RouteService().obtenerRuta(routeFrom!.id, routeTo!.id);
-      
-      // Por ahora, crear una ruta directa como fallback final
       _createDirectRoute();
       
     } catch (e) {
       print('Error con ruta legacy: \$e');
       
-      // Fallback final: línea directa
       _createDirectRoute();
     }
   }
@@ -168,13 +158,11 @@ String get selectedTransport {
   Future<void> _createDirectRoute() async {
     print('Creando ruta directa como fallback');
     
-    // Crear línea directa entre puntos
     final directRoute = [
       LatLng(routeFrom!.latitud, routeFrom!.longitud),
       LatLng(routeTo!.latitud, routeTo!.longitud),
     ];
     
-    // Calcular distancia usando fórmula de Haversine
     final distanceInMeters = Geolocator.distanceBetween(
       routeFrom!.latitud,
       routeFrom!.longitud,
@@ -182,10 +170,8 @@ String get selectedTransport {
       routeTo!.longitud,
     );
     
-    // Estimar tiempo (velocidad promedio caminando: 1.4 m/s)
     final timeInMinutes = (distanceInMeters / 1.4 / 60).round();
     
-    // Crear RutaORS artificial para mantener compatibilidad
     _rutaORS = ors_model.RutaORS(
       ruta: directRoute,
       distanciaM: distanceInMeters.round(),
@@ -204,14 +190,13 @@ String get selectedTransport {
       ),
     );
     
-    _currentRoute = null; // Limpiar ruta antigua
+    _currentRoute = null; 
     _distance = _rutaORS!.distanciaFormateada;
     _timeEstimate = _rutaORS!.tiempoFormateado;
     
-    // Ajustar vista del mapa
     _adjustMapBounds(directRoute);
     
-    _isRouteCalculated = true; // Marcar que la ruta fue calculada
+    _isRouteCalculated = true;
     
     print('Distancia directa: $_distance, Tiempo estimado: $_timeEstimate');
   }
@@ -231,7 +216,6 @@ String get selectedTransport {
       maxLng = maxLng > point.longitude ? maxLng : point.longitude;
     }
     
-    // Añadir padding
     final padding = 0.001;
     final bounds = LatLngBounds(
       LatLng(minLat - padding, minLng - padding),
@@ -284,7 +268,6 @@ String get selectedTransport {
     } else {
       final textoLower = texto.toLowerCase().trim();
       
-      // Buscar coincidencias más inteligentes
       final coincidenciasExactas = <UbicacionModel>[];
       final coincidenciasIniciales = <UbicacionModel>[];
       final coincidenciasInternas = <UbicacionModel>[];
@@ -293,26 +276,22 @@ String get selectedTransport {
         final nombreLower = ubicacion.nombre.toLowerCase();
         final tipoLower = ubicacion.tipo.toLowerCase();
         
-        // Coincidencia exacta con el nombre
         if (nombreLower == textoLower) {
           coincidenciasExactas.add(ubicacion);
         }
-        // Coincidencia al inicio del nombre
         else if (nombreLower.startsWith(textoLower)) {
           coincidenciasIniciales.add(ubicacion);
         }
-        // Coincidencia en cualquier parte del nombre o tipo
         else if (nombreLower.contains(textoLower) || tipoLower.contains(textoLower)) {
           coincidenciasInternas.add(ubicacion);
         }
       }
       
-      // Combinar resultados priorizando exactas, luego iniciales, luego internas
       sugerencias = [
         ...coincidenciasExactas,
         ...coincidenciasIniciales,
         ...coincidenciasInternas,
-      ].take(10).toList(); // Mostrar hasta 10 sugerencias
+      ].take(10).toList();
     }
     notifyListeners();
   }
@@ -344,44 +323,37 @@ String get selectedTransport {
   }
 
 
-// Versión mejorada de la función:
 double getBottomSheetCurrentHeight(double screenHeight) {
   if (ubicacionSeleccionada == null) return 0;
   
-  final sheetHeight = screenHeight * 0.35; // Altura del LocationBottomSheet
+  final sheetHeight = screenHeight * 0.35; 
   final alignmentY = bottomSheetAlignment.y;
   
-  // Mapear alignment a altura visible
   if (alignmentY >= 2.0) {
-    return 0; // Completamente oculto
+    return 0; 
   } else if (alignmentY <= 1.0) {
-    return sheetHeight; // Completamente visible
+    return sheetHeight; 
   } else {
-    // Parcialmente visible - interpolación lineal
     final visibilityFactor = (2.0 - alignmentY) / 1.0;
     return sheetHeight * visibilityFactor;
   }
 }
   void updateSearchPanelVisibility() {
-    // Mostrar panel cuando el campo tiene focus (incluso si está vacío para mostrar historial)
-    // o cuando hay texto para mostrar sugerencias
     _mostrarPanelBusqueda = searchFocusNode.hasFocus || searchController.text.isNotEmpty;
     notifyListeners();
   }
 
   void handleBottomSheetDrag(DragUpdateDetails details) {
-    // Lógica simple: si arrastra hacia abajo, retrae. Si arrastrando hacia arriba, expande
-    if (details.delta.dy > 5) { // Arrastrando hacia abajo
-      bottomSheetAlignment = const Alignment(0, 2); // Retraído
-    } else if (details.delta.dy < -5) { // Arrastrando hacia arriba
-      bottomSheetAlignment = const Alignment(0, 1); // Expandido
+    if (details.delta.dy > 5) { 
+      bottomSheetAlignment = const Alignment(0, 2); 
+    } else if (details.delta.dy < -5) { 
+      bottomSheetAlignment = const Alignment(0, 1);
     }
     notifyListeners();
   }
 
-  // Nueva función para expandir el bottom sheet al hacer tap
   void expandBottomSheet() {
-    bottomSheetAlignment = const Alignment(0, 1); // Expandido completamente
+    bottomSheetAlignment = const Alignment(0, 1); 
     notifyListeners();
   }
 
@@ -425,11 +397,9 @@ void setTransportType(String transport) {
   notifyListeners();
 }
 
-  // Agregar estos métodos al HomeController:
 
 void handleFromLocationSelection(UbicacionModel? ubicacion) {
   if (ubicacion == null) {
-    // Casos especiales se manejan en el RouteSelectorPanel
     return;
   }
   
@@ -442,8 +412,8 @@ void activateMapSelectionForOrigin() {
 
   void startRoutePlanning(UbicacionModel destination) {
     _routeTo = destination;
-    _routeFrom = null; // Inicialmente no hay origen seleccionado
-    _isRouteCalculated = false; // Reset del estado de cálculo
+    _routeFrom = null; 
+    _isRouteCalculated = false; 
     _navigationState = NavigationState.routePlanning;
     ubicacionSeleccionada = null;
     bottomSheetAlignment = const Alignment(0, 2);
@@ -451,10 +421,8 @@ void activateMapSelectionForOrigin() {
   }
 
   void iniciarNavegacion() {
-    // Cambiar el estado a navegando
     _navigationState = NavigationState.navigating;
     notifyListeners();
-    // Aquí puedes implementar la lógica real de navegación (por ahora solo cambia el estado)
     print('Iniciando navegación...');
   }
 
@@ -473,7 +441,6 @@ void activateMapSelectionForOrigin() {
     _routeFrom = ubicacion;
     notifyListeners();
     
-    // Si se establece un origen válido, calcular ruta automáticamente
     if (ubicacion != null && _routeTo != null) {
       calcularRuta();
     }
@@ -501,7 +468,6 @@ void activateMapSelectionForOrigin() {
 
       Position position = await Geolocator.getCurrentPosition();
       
-      // Crear UbicacionModel para la ubicación actual
       final currentLocation = UbicacionModel(
         id: -1,
         nombre: 'Ubicación actual',
@@ -527,10 +493,8 @@ void activateMapSelectionForOrigin() {
 
   void handleMapSelection(LatLng location) {
     if (_mapSelectionMode) {
-      // Modo selección para rutas
       _selectedMapLocation = location;
       
-      // Crear UbicacionModel para la ubicación seleccionada
       final selectedLocation = UbicacionModel(
         id: -2,
         nombre: 'Ubicación seleccionada',
@@ -543,14 +507,12 @@ void activateMapSelectionForOrigin() {
       setRouteFrom(selectedLocation);
       setMapSelectionMode(false);
     } else {
-      // Modo normal: buscar ubicación cercana o permitir selección manual
       _selectLocationFromMap(location);
     }
   }
 
   void _selectLocationFromMap(LatLng location) {
-    // Buscar la ubicación más cercana dentro de un radio
-    const double radioBusqueda = 0.0005; // Aproximadamente 50 metros
+    const double radioBusqueda = 0.0005; 
     
     UbicacionModel? ubicacionCercana;
     double distanciaMinima = double.infinity;
@@ -568,10 +530,8 @@ void activateMapSelectionForOrigin() {
     }
     
     if (ubicacionCercana != null) {
-      // Seleccionar la ubicación encontrada
       buscarUbicacion(ubicacionCercana);
     } else {
-      // Crear una ubicación personalizada en esa posición
       final ubicacionPersonalizada = UbicacionModel(
         id: -1,
         nombre: 'Ubicación personalizada',
@@ -590,7 +550,6 @@ void activateMapSelectionForOrigin() {
   }
 
   double _calcularDistancia(double lat1, double lon1, double lat2, double lon2) {
-    // Fórmula simple de distancia euclidiana para coordenadas cercanas
     final deltaLat = lat1 - lat2;
     final deltaLon = lon1 - lon2;
     return (deltaLat * deltaLat + deltaLon * deltaLon);
