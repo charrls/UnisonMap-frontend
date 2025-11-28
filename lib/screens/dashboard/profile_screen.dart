@@ -128,12 +128,33 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 icon: Icons.logout,
                 text: 'Cerrar sesión',
                 color: Colors.red,
-                onTap: () {
-                  authProvider.logout();
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(builder: (_) => const LoginScreen()),
+                onTap: () async {
+                  final confirm = await showDialog<bool>(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      title: const Text('Cerrar sesión'),
+                      content: const Text('¿Estás seguro que quieres cerrar sesión?'),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context, false),
+                          child: const Text('Cancelar'),
+                        ),
+                        TextButton(
+                          onPressed: () => Navigator.pop(context, true),
+                          child: const Text('Cerrar sesión'),
+                        ),
+                      ],
+                    ),
                   );
+                  
+                  if (confirm == true && mounted) {
+                    await authProvider.logout();
+                    Navigator.pushAndRemoveUntil(
+                      context,
+                      MaterialPageRoute(builder: (_) => const LoginScreen()),
+                      (route) => false,
+                    );
+                  }
                 },
               ),
               const SizedBox(height: 24),
@@ -150,7 +171,6 @@ class _InfoRow extends StatelessWidget {
   final String value;
 
   const _InfoRow({
-    super.key,
     required this.title,
     required this.value,
   });
@@ -177,7 +197,7 @@ class _InfoRow extends StatelessWidget {
 class _SectionTitle extends StatelessWidget {
   final String text;
 
-  const _SectionTitle(this.text, {super.key});
+  const _SectionTitle(this.text);
 
   @override
   Widget build(BuildContext context) {
@@ -202,7 +222,6 @@ class _SettingsButton extends StatelessWidget {
   final Color? color;
 
   const _SettingsButton({
-    super.key,
     required this.icon,
     required this.text,
     required this.onTap,

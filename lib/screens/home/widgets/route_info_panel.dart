@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class RouteInfoPanel extends StatelessWidget {
   final String distance;
   final String timeEstimate;
-  final VoidCallback onNavigate;
+  final Future<void> Function() onNavigate;
   final VoidCallback onCancel;
   final bool isCalculating;
   final bool isORSRoute; 
@@ -71,14 +71,14 @@ class RouteInfoPanel extends StatelessWidget {
                 children: [
                   const Icon(Icons.directions_walk),
                   const SizedBox(width: 4),
-                  Text('$distance'),
+                  Text(distance),
                 ],
               ),
               Row(
                 children: [
                   const Icon(Icons.access_time),
                   const SizedBox(width: 4),
-                  Text('$timeEstimate'),
+                  Text(timeEstimate),
                 ],
               ),
             ],
@@ -95,7 +95,11 @@ class RouteInfoPanel extends StatelessWidget {
               const SizedBox(width: 16),
               Expanded(
                 child: ElevatedButton(
-                  onPressed: isCalculating ? null : onNavigate,
+                  onPressed: isCalculating
+                      ? null
+                      : () async {
+                          await onNavigate();
+                        },
                   child: isCalculating 
                     ? const SizedBox(
                         width: 20,

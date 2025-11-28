@@ -6,7 +6,11 @@ class SuggestionPanel extends StatelessWidget {
   final TextEditingController searchController;
   final List<String> historialBusquedas;
   final List<UbicacionModel> sugerencias;
-  final Function(String) onSuggestionTap;
+  final ValueChanged<dynamic> onSuggestionTap;
+  final BorderRadius borderRadius;
+  final double? maxHeight;
+  final Color? backgroundColor;
+  final ScrollPhysics? scrollPhysics;
 
   const SuggestionPanel({
     super.key,
@@ -14,24 +18,32 @@ class SuggestionPanel extends StatelessWidget {
     required this.historialBusquedas,
     required this.sugerencias,
     required this.onSuggestionTap,
+    this.borderRadius = const BorderRadius.all(Radius.circular(16)),
+    this.maxHeight,
+    this.backgroundColor,
+    this.scrollPhysics,
   });
 
   @override
   Widget build(BuildContext context) {
+  final panelColor = backgroundColor ?? Colors.white;
+
     return Material(
-      elevation: 4,
-      borderRadius: BorderRadius.circular(8),
-      child: Container(
-        color: Colors.white,
-        constraints: const BoxConstraints(maxHeight: 300),
+      elevation: 0,
+      color: panelColor,
+      borderRadius: borderRadius,
+      child: ConstrainedBox(
+        constraints: BoxConstraints(
+          maxHeight: maxHeight ?? double.infinity,
+        ),
         child: searchController.text.isEmpty
-            ? _buildHistorialSection()
-            : _buildSugerenciasSection(),
+            ? _buildHistorialSection(context)
+            : _buildSugerenciasSection(context),
       ),
     );
   }
 
-  Widget _buildHistorialSection() {
+  Widget _buildHistorialSection(BuildContext context) {
     if (historialBusquedas.isEmpty) {
       return const Padding(
         padding: EdgeInsets.all(16.0),
@@ -45,25 +57,29 @@ class SuggestionPanel extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Padding(
-          padding: EdgeInsets.fromLTRB(16, 12, 16, 8),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
           child: Text(
-            "Búsquedas recientes",
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              color: Colors.grey,
-              fontSize: 12,
-            ),
+            'Búsquedas recientes',
+            style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                  fontWeight: FontWeight.w600,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
           ),
         ),
         Flexible(
           child: ListView.builder(
             shrinkWrap: true,
+            physics: scrollPhysics ?? const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+            padding: EdgeInsets.zero,
             itemCount: historialBusquedas.length,
             itemBuilder: (context, index) {
               final texto = historialBusquedas[index];
               return ListTile(
-                leading: const Icon(Icons.history, color: Colors.grey),
+                leading: Icon(
+                  Icons.history,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
                 title: Text(texto),
                 onTap: () => onSuggestionTap(texto),
               );
@@ -74,7 +90,7 @@ class SuggestionPanel extends StatelessWidget {
     );
   }
 
-  Widget _buildSugerenciasSection() {
+  Widget _buildSugerenciasSection(BuildContext context) {
     if (sugerencias.isEmpty) {
       return const Padding(
         padding: EdgeInsets.all(16.0),
@@ -91,30 +107,31 @@ class SuggestionPanel extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
           child: Text(
-            "Sugerencias (${sugerencias.length})",
-            style: const TextStyle(
-              fontWeight: FontWeight.bold,
-              color: Colors.grey,
-              fontSize: 12,
-            ),
+            'Sugerencias (${sugerencias.length})',
+            style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                  fontWeight: FontWeight.w600,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
           ),
         ),
         Flexible(
           child: ListView.builder(
             shrinkWrap: true,
+            physics: scrollPhysics ?? const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+            padding: EdgeInsets.zero,
             itemCount: sugerencias.length,
             itemBuilder: (context, index) {
               final ubicacion = sugerencias[index];
               return ListTile(
                 leading: Icon(
                   _getIconForTipo(ubicacion.tipo),
-                  color: Colors.blue,
+                  color: Theme.of(context).colorScheme.primary,
                 ),
                 title: Text(ubicacion.nombre),
                 subtitle: ubicacion.tipo.isNotEmpty 
                     ? Text(ubicacion.tipo)
                     : null,
-                onTap: () => onSuggestionTap(ubicacion.nombre),
+                onTap: () => onSuggestionTap(ubicacion),
               );
             },
           ),

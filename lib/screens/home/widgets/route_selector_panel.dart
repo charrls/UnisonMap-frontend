@@ -1,24 +1,29 @@
 import 'package:flutter/material.dart';
+
+import '../../../core/enums/ors_profile.dart';
 import '../../../models/ubicacion_model.dart';
-import 'transport_selector.dart'; 
-import '../home_controller.dart'; 
+import 'transport_selector.dart';
 
 class RouteSelectorPanel extends StatefulWidget {
   final UbicacionModel? fromLocation;
   final UbicacionModel toLocation;
   final List<UbicacionModel> ubicaciones;
-  final String selectedTransport;
+  final OrsProfile selectedProfile;
+  final List<OrsProfile> availableProfiles;
   final Function(UbicacionModel?) onFromChanged;
-  final Function(String) onTransportChanged;
+  final VoidCallback onUseCurrentLocation;
+  final ValueChanged<OrsProfile> onProfileChanged;
 
   const RouteSelectorPanel({
     super.key,
     this.fromLocation,
     required this.toLocation,
     required this.ubicaciones,
-    required this.selectedTransport,
+    required this.selectedProfile,
+    this.availableProfiles = kDefaultOrsProfiles,
     required this.onFromChanged,
-    required this.onTransportChanged,
+    required this.onUseCurrentLocation,
+    required this.onProfileChanged,
   });
 
   @override
@@ -44,7 +49,25 @@ class _RouteSelectorPanelState extends State<RouteSelectorPanel> {
     });
     
     if (widget.fromLocation != null) {
-      _fromController.text = widget.fromLocation!.nombre;
+      final isCurrentLocation = widget.fromLocation!.tipo.toLowerCase() == 'ubicacion_actual';
+      _fromController.text = isCurrentLocation ? 'Tu ubicación' : widget.fromLocation!.nombre;
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant RouteSelectorPanel oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.fromLocation != oldWidget.fromLocation) {
+      if (widget.fromLocation != null) {
+        final isCurrentLocation = widget.fromLocation!.tipo.toLowerCase() == 'ubicacion_actual';
+        final displayName = isCurrentLocation ? 'Tu ubicación' : widget.fromLocation!.nombre;
+        _fromController.value = TextEditingValue(
+          text: displayName,
+          selection: TextSelection.collapsed(offset: displayName.length),
+        );
+      } else if (!_fromFocusNode.hasFocus) {
+        _fromController.clear();
+      }
     }
   }
 
@@ -88,7 +111,8 @@ class _RouteSelectorPanelState extends State<RouteSelectorPanel> {
   }
 
   void _selectFromLocation(UbicacionModel ubicacion) {
-    _fromController.text = ubicacion.nombre;
+    final isCurrentLocation = ubicacion.tipo.toLowerCase() == 'ubicacion_actual';
+    _fromController.text = isCurrentLocation ? 'Tu ubicación' : ubicacion.nombre;
     _fromFocusNode.unfocus();
     setState(() {
       _showSuggestions = false;
@@ -96,37 +120,11 @@ class _RouteSelectorPanelState extends State<RouteSelectorPanel> {
     widget.onFromChanged(ubicacion);
   }
 
-
-TransportType _stringToTransportType(String transport) {
-  switch (transport) {
-    case 'walking':
-      return TransportType.walking;
-    case 'wheelchair':
-      return TransportType.wheelchair;
-    case 'motorcycle':
-      return TransportType.motorcycle;
-    case 'car':
-      return TransportType.car;
-    default:
-      return TransportType.walking;
-  }
-}
-
-String _transportTypeToString(TransportType transportType) {
-  switch (transportType) {
-    case TransportType.walking:
-      return 'walking';
-    case TransportType.wheelchair:
-      return 'wheelchair';
-    case TransportType.motorcycle:
-      return 'motorcycle';
-    case TransportType.car:
-      return 'car';
-  }
-}
-
  @override
   Widget build(BuildContext context) {
+      final normalizedText = _fromController.text.trim().toLowerCase();
+      final bool isCurrentLocationActive = normalizedText == 'tu ubicación';
+
     return Column(
       children: [
         Material(
@@ -148,10 +146,17 @@ String _transportTypeToString(TransportType transportType) {
                     TextField(
                       controller: _fromController,
                       focusNode: _fromFocusNode,
+                      style: TextStyle(
+                        color: isCurrentLocationActive ? Colors.blue : Colors.black87,
+                        fontWeight: isCurrentLocationActive ? FontWeight.bold : FontWeight.normal,
+                      ),
                       decoration: InputDecoration(
                         labelText: 'Desde',
                         hintText: 'Buscar ubicación de origen...',
-                        prefixIcon: const Icon(Icons.my_location, color: Colors.green),
+                        prefixIcon: Icon(
+                          Icons.my_location,
+                          color: isCurrentLocationActive ? Colors.blue : Colors.green,
+                        ),
                         suffixIcon: _fromController.text.isNotEmpty
                             ? IconButton(
                                 icon: const Icon(Icons.clear),
@@ -197,12 +202,18 @@ String _transportTypeToString(TransportType transportType) {
                               if (_fromController.text.isEmpty) ...[
                                 ListTile(
                                   leading: const Icon(Icons.gps_fixed, color: Colors.blue),
-                                  title: const Text('Tu ubicación actual'),
+                                  title: const Text(
+                                    'Tu ubicación',
+                                    style: TextStyle(
+                                      color: Colors.blue,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
                                   onTap: () {
-                                    _fromController.text = 'Tu ubicación actual';
+                                    _fromController.text = 'Tu ubicación';
                                     _fromFocusNode.unfocus();
                                     setState(() => _showSuggestions = false);
-                                    widget.onFromChanged(null);
+                                    widget.onUseCurrentLocation();
                                   },
                                 ),
                                 ListTile(
@@ -273,10 +284,9 @@ String _transportTypeToString(TransportType transportType) {
               const SizedBox(height: 16),
 
               TransportSelector(
-                selectedTransport: _stringToTransportType(widget.selectedTransport),
-                onTransportSelected: (transportType) {
-                  widget.onTransportChanged(_transportTypeToString(transportType));
-                },
+                profiles: widget.availableProfiles,
+                selectedProfile: widget.selectedProfile,
+                onProfileSelected: widget.onProfileChanged,
               ),
 
 

@@ -23,16 +23,30 @@ class UserModel {
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
     return UserModel(
-      nombres: json['nombres'],
-      apellidos: json['apellidos'],
-      correo: json['correo'],
-      tipoUsuario: json['tipo_usuario'],
-      departamento: json['departamento'],
-      carrera: json['carrera'],
+      nombres: json['nombres'] ?? '',
+      apellidos: json['apellidos'] ?? '',
+      correo: json['correo'] ?? '',
+      tipoUsuario: json['tipo_usuario'] ?? '',
+      departamento: json['departamento'] ?? '',
+      carrera: json['carrera'] ?? '',
       expediente: json['expediente'], 
       semestre: json['semestre'],     
       fechaRegistro: json['fecha_registro'], 
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'nombres': nombres,
+      'apellidos': apellidos,
+      'correo': correo,
+      'tipo_usuario': tipoUsuario,
+      'departamento': departamento,
+      'carrera': carrera,
+      'expediente': expediente,
+      'semestre': semestre,
+      'fecha_registro': fechaRegistro,
+    };
   }
 
   String get nombreCompleto => '$nombres $apellidos';

@@ -2,11 +2,20 @@ import 'package:dio/dio.dart';
 import '../../models/user_model.dart';
 
 class AuthService {
-  final Dio _dio = Dio(BaseOptions(
-    baseUrl: 'https://unisonmap-fastapi.onrender.com/api',
-    connectTimeout: const Duration(seconds: 30),
-    receiveTimeout: const Duration(seconds: 30),
-  ));
+  late final Dio _dio;
+  
+  AuthService() {
+    _dio = Dio(BaseOptions(
+      baseUrl: 'https://unisonmap-fastapi.onrender.com/api',
+      connectTimeout: const Duration(seconds: 30),
+      receiveTimeout: const Duration(seconds: 30),
+    ));
+  }
+
+  void setupInterceptor(Interceptor interceptor) {
+    _dio.interceptors.clear();
+    _dio.interceptors.add(interceptor);
+  }
 
   Future<String?> login(String email, String password) async {
     try {
@@ -67,6 +76,46 @@ class AuthService {
         print('Endpoint /auth/me no encontrado - verificar backend');
       }
       return null;
+    }
+  }
+
+  Future<bool> validateToken(String token) async {
+    try {
+      print('Validando token...');
+      final response = await _dio.get(
+        '/auth/me',
+        options: Options(headers: {
+          'Authorization': 'Bearer $token',
+        }),
+      );
+      
+      print('Token válido: ${response.statusCode == 200}');
+      return response.statusCode == 200;
+      
+    } catch (e) {
+      print('Token inválido o expirado: $e');
+      if (e is DioException) {
+        if (e.response?.statusCode == 401 || e.response?.statusCode == 403) {
+          return false;
+        }
+        if (e.response == null) {
+          print('Error de conexión - manteniendo sesión');
+          return true;
+        }
+      }
+      return false;
+    }
+  }
+
+  Future<bool> isServerAvailable() async {
+    try {
+      await _dio.get('/health', options: Options(
+        receiveTimeout: const Duration(seconds: 5),
+      ));
+      return true;
+    } catch (e) {
+      print('Servidor no disponible: $e');
+      return false;
     }
   }
 }

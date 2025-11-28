@@ -20,21 +20,55 @@ class _SplashScreenState extends State<SplashScreen> {
 
   void _checkAuth() async {
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
-    await authProvider.loadToken();
+    
+    try {
+      await authProvider.loadToken();
+      
+      if (authProvider.isAuthenticated && !authProvider.isGuestMode) {
+        print('Validando token existente...');
+        final isValid = await authProvider.validateToken();
+        
+        if (!isValid) {
+          print('Token expirado - redirigiendo al login');
+          _navigateToLogin();
+          return;
+        }
+        
+        if (authProvider.user == null) {
+          await authProvider.fetchUser();
+        }
+      }
+      
+      _navigateToCorrectScreen(authProvider);
+      
+    } catch (e) {
+      print('Error en _checkAuth: $e');
+      _navigateToLogin();
+    }
+  }
 
-    await Future.delayed(const Duration(seconds: 2));
-
-    if (authProvider.isAuthenticated && mounted) {
+  void _navigateToCorrectScreen(AuthProvider authProvider) {
+    if (!mounted) return;
+    
+    if (authProvider.isAuthenticated) {
+      print('Usuario autenticado - navegando al dashboard');
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (_) => const DashboardScreen()),
       );
     } else {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const LoginScreen()),
-      );
+      print('Usuario no autenticado - navegando al login');
+      _navigateToLogin();
     }
+  }
+
+  void _navigateToLogin() {
+    if (!mounted) return;
+    
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (_) => const LoginScreen()),
+    );
   }
 
 
